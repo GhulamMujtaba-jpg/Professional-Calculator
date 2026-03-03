@@ -24,6 +24,7 @@ button{cursor:pointer}
 table{background:white;width:100%;border-collapse:collapse}
 .dark table{background:#2c2c2c;color:white}
 th,td{text-align:center;padding:6px;border:1px solid #ccc}
+.details{display:none;margin-top:10px;}
 </style>
 </head>
 <body>
@@ -32,8 +33,6 @@ th,td{text-align:center;padding:6px;border:1px solid #ccc}
 <h2>GM Auto Sales System</h2>
 <button onclick="toggleMode()">Dark/Light</button>
 <button onclick="clearSales()">Clear Sales</button>
-<button onclick="takeScreenshot()">Screenshot</button>
-<button onclick="printPage()">Print</button>
 <button onclick="nextDay()">Next Day</button>
 </header>
 
@@ -47,14 +46,6 @@ th,td{text-align:center;padding:6px;border:1px solid #ccc}
 <button onclick="addProduct()">Add</button>
 
 <h3>Products</h3>
-<button onclick="renderProducts()">Card View</button>
-<button onclick="showTableView()">Table View</button>
-<button onclick="exportCSV()">Export Excel</button>
-<br>
-<input id="searchBox" placeholder="Search Product..." onkeyup="searchProduct()">
-<button onclick="sortByName()">Sort By Name</button>
-<button onclick="sortBySale()">Sort By Sale</button>
-
 <div id="productList"></div>
 
 <h3>Dashboard</h3>
@@ -66,208 +57,182 @@ th,td{text-align:center;padding:6px;border:1px solid #ccc}
 </div>
 
 <h3>Daily Sales Records</h3>
-
 <input type="date" id="searchDate">
-<button onclick="searchByDate()">Search By Date</button>
+<button onclick="searchByDate()">Search</button>
 
 <div id="dailyRecords"></div>
 
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-
 <script>
+
 let products = JSON.parse(localStorage.getItem("products")) || [];
 let sales = JSON.parse(localStorage.getItem("sales")) || [];
-let currentView = "card";
 let currentDay = parseInt(localStorage.getItem("currentDay")) || 1;
-document.getElementById("currentDay").innerText = currentDay;
+
+document.getElementById("currentDay").innerText=currentDay;
 
 function save(){
-    localStorage.setItem("products", JSON.stringify(products));
-    localStorage.setItem("sales", JSON.stringify(sales));
-    localStorage.setItem("currentDay", currentDay);
+localStorage.setItem("products",JSON.stringify(products));
+localStorage.setItem("sales",JSON.stringify(sales));
+localStorage.setItem("currentDay",currentDay);
 }
 
 function addProduct(){
-    let name = pname.value;
-    let costp = parseFloat(cost.value);
-    let salep = parseFloat(sale.value);
-    let stockp = parseInt(stock.value) || 0;
-    if(!name || !costp || !salep) return alert("Fill all fields");
-
-    products.push({name, costp, salep, stock: stockp, sold: 0});
-    save();
-    refreshView();
-}
-
-function refreshView(){
-    if(currentView === "table") showTableView();
-    else renderProducts();
-    renderDailyRecords();
-    document.getElementById("currentDay").innerText = currentDay;
+let name=pname.value;
+let costp=parseFloat(cost.value);
+let salep=parseFloat(sale.value);
+let stockp=parseInt(stock.value)||0;
+if(!name||!costp||!salep) return alert("Fill all fields");
+products.push({name,costp,salep,stock:stockp,sold:0});
+save();
+renderProducts();
 }
 
 function renderProducts(){
-    currentView = "card";
-    let list = document.getElementById("productList");
-    list.innerHTML = "";
-    products.forEach((p,index)=>{
-        let div = document.createElement("div");
-        div.className="card";
-        div.innerHTML=`
-            <b>${p.name}</b><br>
-            Cost: ${p.costp} | Sale: ${p.salep}<br>
-            Sold: ${p.sold} | Stock: ${p.stock}<br>
-            <div class="product-buttons">
-                <button onclick="increase(${index})">+</button>
-                <button onclick="decrease(${index})">-</button>
-            </div>`;
-        list.appendChild(div);
-    });
-    updateDashboard();
-}
-
-function showTableView(){
-    currentView="table";
-    let list=document.getElementById("productList");
-    list.innerHTML="";
-    if(products.length===0){list.innerHTML="<div class='card'>No Products</div>";return;}
-
-    let table=document.createElement("table");
-    let header=`<tr style="background:#2c3e50;color:white;">
-    <th>Name</th><th>Cost</th><th>Sale</th>
-    <th>Sold</th><th>Stock</th><th>Action</th>
-    </tr>`;
-    let rows="";
-    products.forEach((p,index)=>{
-        rows+=`
-        <tr>
-        <td>${p.name}</td>
-        <td>${p.costp}</td>
-        <td>${p.salep}</td>
-        <td>${p.sold}</td>
-        <td>${p.stock}</td>
-        <td>
-        <button onclick="increase(${index})">+</button>
-        <button onclick="decrease(${index})">-</button>
-        </td>
-        </tr>`;
-    });
-    table.innerHTML=header+rows;
-    list.appendChild(table);
-    updateDashboard();
+let list=document.getElementById("productList");
+list.innerHTML="";
+products.forEach((p,i)=>{
+let div=document.createElement("div");
+div.className="card";
+div.innerHTML=`
+<b>${p.name}</b><br>
+Cost: ${p.costp} | Sale: ${p.salep}<br>
+Sold: ${p.sold} | Stock: ${p.stock}<br>
+<button onclick="increase(${i})">+</button>
+<button onclick="decrease(${i})">-</button>
+`;
+list.appendChild(div);
+});
+updateDashboard();
 }
 
 function increase(i){
-    let p=products[i];
-    if(p.stock>0 && p.sold>=p.stock){alert("Out of stock!");return;}
-    p.sold+=1;
-
-    let today=new Date().toISOString().split("T")[0];
-
-    sales.push({
-        date: today,
-        sale: p.salep,
-        profit:(p.salep-p.costp),
-        day: currentDay
-    });
-
-    save();
-    refreshView();
+let p=products[i];
+if(p.stock>0 && p.sold>=p.stock){alert("Out of stock");return;}
+p.sold++;
+let today=new Date().toISOString().split("T")[0];
+sales.push({day:currentDay,date:today,name:p.name,sale:p.salep,profit:p.salep-p.costp});
+save();
+renderProducts();
+renderDailyRecords();
 }
 
 function decrease(i){
-    let p=products[i];
-    if(p.sold>0){
-        p.sold-=1;
-        for(let j=sales.length-1;j>=0;j--){
-            if(sales[j].sale===p.salep && sales[j].day===currentDay){
-                sales.splice(j,1); break;
-            }
-        }
-        save();
-        refreshView();
-    }
+let p=products[i];
+if(p.sold>0){
+p.sold--;
+for(let j=sales.length-1;j>=0;j--){
+if(sales[j].day===currentDay && sales[j].name===p.name){
+sales.splice(j,1);break;
+}}
+save();
+renderProducts();
+renderDailyRecords();
+}
 }
 
 function updateDashboard(){
-    let todaySale=0, overallSale=0, overallProfit=0;
-    sales.forEach(s=>{
-        overallSale += s.sale;
-        overallProfit += s.profit;
-        if(s.day===currentDay) todaySale += s.sale;
-    });
-    document.getElementById("todaySale").innerText=todaySale;
-    document.getElementById("overallSale").innerText=overallSale;
-    let profitEl=document.getElementById("overallProfit");
-    profitEl.innerText=overallProfit;
-    profitEl.className=overallProfit>=0?"green":"red";
+let todaySale=0,overallSale=0,overallProfit=0;
+sales.forEach(s=>{
+overallSale+=s.sale;
+overallProfit+=s.profit;
+if(s.day===currentDay) todaySale+=s.sale;
+});
+todaySale.innerText=todaySale;
+overallSale.innerText=overallSale;
+overallProfit.innerText=overallProfit;
 }
 
 function nextDay(){
-    if(confirm("Start next day? Current day sales will be saved.")){
-        currentDay += 1;
-        products.forEach(p=>p.sold=0);
-        save();
-        refreshView();
-    }
+currentDay++;
+products.forEach(p=>p.sold=0);
+save();
+document.getElementById("currentDay").innerText=currentDay;
+renderProducts();
+}
+
+function clearSales(){
+sales=[];
+products.forEach(p=>p.sold=0);
+save();
+renderProducts();
+renderDailyRecords();
 }
 
 function renderDailyRecords(){
-    let container = document.getElementById("dailyRecords");
-    container.innerHTML="";
+let container=document.getElementById("dailyRecords");
+container.innerHTML="";
+if(sales.length===0){
+container.innerHTML="<div class='card'>No sales yet</div>";
+return;
+}
 
-    if(sales.length===0){
-        container.innerHTML="<div class='card'>No sales yet</div>";
-        return;
-    }
+let days=[...new Set(sales.map(s=>s.day))];
 
-    let days = [...new Set(sales.map(s=>s.day))].sort((a,b)=>a-b);
+days.forEach(day=>{
+let daySales=sales.filter(s=>s.day===day);
+let total=daySales.reduce((a,b)=>a+b.sale,0);
+let date=daySales[0].date;
 
-    days.forEach(day=>{
-        let daySales = sales.filter(s=>s.day===day);
-        let total = daySales.reduce((a,b)=>a+b.sale,0);
-        let date = daySales[0].date;
+let box=document.createElement("div");
+box.className="card";
 
-        let div=document.createElement("div");
-        div.className="card";
-        div.innerHTML=`<b>Day ${day}</b><br>
-                       Date: ${date}<br>
-                       Total Sale: ${total}<br>`;
-        container.appendChild(div);
-    });
+let header=document.createElement("div");
+header.innerHTML=`<b>Day ${day}</b> | Date: ${date} | Total: ${total}`;
+box.appendChild(header);
+
+let details=document.createElement("div");
+details.className="details";
+
+daySales.forEach(s=>{
+let p=document.createElement("div");
+p.innerText=`${s.name} - ${s.sale}`;
+details.appendChild(p);
+});
+
+header.onclick=function(){
+details.style.display=details.style.display==="none"?"block":"none";
+};
+
+box.appendChild(details);
+container.appendChild(box);
+});
 }
 
 function searchByDate(){
-    let searchDate=document.getElementById("searchDate").value;
-    if(!searchDate){renderDailyRecords();return;}
+let value=document.getElementById("searchDate").value;
+if(!value){renderDailyRecords();return;}
 
-    let container=document.getElementById("dailyRecords");
-    container.innerHTML="";
+let container=document.getElementById("dailyRecords");
+container.innerHTML="";
 
-    let filtered=sales.filter(s=>s.date===searchDate);
-
-    if(filtered.length===0){
-        container.innerHTML="<div class='card'>No record found</div>";
-        return;
-    }
-
-    let total=filtered.reduce((a,b)=>a+b.sale,0);
-    let div=document.createElement("div");
-    div.className="card";
-    div.innerHTML=`<b>Date: ${searchDate}</b><br>Total Sale: ${total}`;
-    container.appendChild(div);
+let filtered=sales.filter(s=>s.date===value);
+if(filtered.length===0){
+container.innerHTML="<div class='card'>No record found</div>";
+return;
 }
 
-function toggleMode(){document.body.classList.toggle("dark");}
-function sortByName(){products.sort((a,b)=>a.name.localeCompare(b.name)); save(); refreshView();}
-function sortBySale(){products.sort((a,b)=>a.salep-b.salep); save(); refreshView();}
-function takeScreenshot(){html2canvas(document.getElementById("productList"),{scale:3}).then(canvas=>{let link=document.createElement("a");link.download="GM_Product_List.png";link.href=canvas.toDataURL();link.click();});}
-function printPage(){window.print();}
+let days=[...new Set(filtered.map(s=>s.day))];
 
-refreshView();
+days.forEach(day=>{
+let daySales=filtered.filter(s=>s.day===day);
+let total=daySales.reduce((a,b)=>a+b.sale,0);
+
+let box=document.createElement("div");
+box.className="card";
+box.innerHTML=`<b>Day ${day}</b> | Total: ${total}`;
+container.appendChild(box);
+});
+}
+
+function toggleMode(){
+document.body.classList.toggle("dark");
+}
+
+renderProducts();
+renderDailyRecords();
+
 </script>
-
 </body>
 </html>
