@@ -2,239 +2,283 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>GM Khata Tool</title>
+<title>GM Auto Sales System</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
 <style>
-body{
-font-family: Arial;
-margin:0;
-background:#f4f4f4;
-transition:0.3s;
-}
-.dark{
-background:#1e1e1e;
-color:white;
-}
-header{
-background:#2c3e50;
-color:white;
-padding:15px;
-text-align:center;
-}
-.container{
-padding:15px;
-}
-input,select,button{
-padding:8px;
-margin:5px;
-}
-.card{
-background:white;
-padding:10px;
-margin:8px 0;
-border-radius:8px;
-box-shadow:0 2px 6px rgba(0,0,0,0.2);
-}
-.dark .card{
-background:#2c2c2c;
-}
-.green{color:green;}
-.red{color:red;}
-.flex{display:flex;flex-wrap:wrap;}
-.flex input{flex:1;}
-.dashboard{
-display:flex;
-flex-wrap:wrap;
-gap:10px;
-}
-.dashboard div{
-background:#3498db;
-color:white;
-padding:10px;
-border-radius:8px;
-flex:1;
-text-align:center;
-}
-@media(max-width:600px){
-.dashboard{flex-direction:column;}
-}
+body{font-family:Arial;margin:0;background:#f4f6f9;transition:.3s;}
+.dark{background:#1e1e1e;color:white}
+header{background:#2c3e50;color:white;padding:15px;text-align:center;}
+.container{padding:15px}
+input,button{padding:6px;margin:4px;}
+button{cursor:pointer}
+.card{background:white;padding:12px;margin:10px 0;border-radius:10px;box-shadow:0 2px 6px rgba(0,0,0,.2);}
+.dark .card{background:#2c2c2c}
+.product-buttons{display:flex;gap:10px;align-items:center;}
+.product-buttons button{width:35px;height:35px;font-size:18px;}
+.dashboard{display:flex;flex-wrap:wrap;gap:10px;margin-top:15px;}
+.dashboard div{flex:1;background:#3498db;color:white;padding:10px;border-radius:10px;text-align:center;}
+.red{color:red}
+.green{color:lime}
+@media(max-width:600px){.dashboard{flex-direction:column}}
+table{background:white;width:100%;border-collapse:collapse}
+.dark table{background:#2c2c2c;color:white}
+th,td{text-align:center;padding:6px;border:1px solid #ccc}
 </style>
 </head>
 <body>
 
 <header>
-<h2>GM Khata Tool</h2>
-<button onclick="toggleMode()">Dark / Light</button>
+<h2>GM Auto Sales System</h2>
+<button onclick="toggleMode()">Dark/Light</button>
+<button onclick="clearSales()">Clear Sales</button>
+<button onclick="takeScreenshot()">Screenshot</button>
 <button onclick="printPage()">Print</button>
-<button onclick="downloadPDF()">Download PDF</button>
-<button onclick="screenshot()">Screenshot</button>
-<button onclick="clearData()">Clear Data</button>
+<button onclick="nextDay()">Next Day</button>
 </header>
 
 <div class="container">
 
-<h3>Add Entry</h3>
-<div class="flex">
-<input id="name" placeholder="Customer Name">
-<input id="phone" placeholder="Phone">
-<input id="address" placeholder="Address">
-</div>
-<input id="note" placeholder="Note / Description">
-<input type="number" id="amount" placeholder="Amount">
-<select id="type">
-<option value="debit">Udhar Diya (Debit)</option>
-<option value="credit">Paise Liye (Credit)</option>
-</select>
-<button onclick="addEntry()">Add</button>
+<h3>Add Product</h3>
+<input id="pname" placeholder="Product Name">
+<input type="number" id="cost" placeholder="Cost Price">
+<input type="number" id="sale" placeholder="Sale Price">
+<input type="number" id="stock" placeholder="Stock (optional)">
+<button onclick="addProduct()">Add</button>
 
-<h3>Search / Filter</h3>
-<input id="search" placeholder="Search by Name" onkeyup="render()">
-<input type="date" id="dateFilter" onchange="render()">
+<h3>Products</h3>
+<button onclick="renderProducts()">Card View</button>
+<button onclick="showTableView()">Table View</button>
+<button onclick="exportCSV()">Export Excel</button>
+<br>
+<input id="searchBox" placeholder="Search Product..." onkeyup="searchProduct()">
+<button onclick="sortByName()">Sort By Name</button>
+<button onclick="sortBySale()">Sort By Sale</button>
+
+<div id="productList"></div>
 
 <h3>Dashboard</h3>
 <div class="dashboard">
-<div>Total Debit<br><span id="totalDebit">0</span></div>
-<div>Total Credit<br><span id="totalCredit">0</span></div>
-<div>Final Balance<br><span id="balance">0</span></div>
+<div>Today Sale<br><span id="todaySale">0</span></div>
+<div>Overall Sale<br><span id="overallSale">0</span></div>
+<div>Overall Profit<br><span id="overallProfit">0</span></div>
+<div>Current Day<br><span id="currentDay"></span></div>
 </div>
 
-<h3>Entries</h3>
-<div id="entries"></div>
+<h3>Daily Sales Records</h3>
 
-<h3>Profit Calculator</h3>
-<input type="number" id="cost" placeholder="Cost Price">
-<input type="number" id="sell" placeholder="Sell Price">
-<button onclick="calcProfit()">Calculate</button>
-<div id="profitResult"></div>
+<!-- NEW DATE SEARCH FUNCTION -->
+<input type="date" id="searchDate">
+<button onclick="searchByDate()">Search By Date</button>
 
-<h3>Installment Tracker</h3>
-<input type="number" id="totalInstall" placeholder="Total Amount">
-<input type="number" id="paidInstall" placeholder="Paid Amount">
-<button onclick="calcInstall()">Check</button>
-<div id="installResult"></div>
-
-<h3>Due Reminder</h3>
-<button onclick="sendWhatsApp()">Generate WhatsApp Reminder</button>
+<div id="dailyRecords"></div>
 
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 
 <script>
-let data = JSON.parse(localStorage.getItem("khata")) || [];
+let products = JSON.parse(localStorage.getItem("products")) || [];
+let sales = JSON.parse(localStorage.getItem("sales")) || [];
+let currentView = "card";
+let currentDay = parseInt(localStorage.getItem("currentDay")) || 1;
+
+document.getElementById("currentDay").innerText = currentDay;
 
 function save(){
-localStorage.setItem("khata",JSON.stringify(data));
+    localStorage.setItem("products", JSON.stringify(products));
+    localStorage.setItem("sales", JSON.stringify(sales));
+    localStorage.setItem("currentDay", currentDay);
 }
 
-function addEntry(){
-let name=document.getElementById("name").value;
-let phone=document.getElementById("phone").value;
-let address=document.getElementById("address").value;
-let note=document.getElementById("note").value;
-let amount=parseFloat(document.getElementById("amount").value);
-let type=document.getElementById("type").value;
-let date=new Date().toISOString().split("T")[0];
+function addProduct(){
+    let name = pname.value;
+    let costp = parseFloat(cost.value);
+    let salep = parseFloat(sale.value);
+    let stockp = parseInt(stock.value) || 0;
+    if(!name || !costp || !salep) return alert("Fill all fields");
 
-if(!name || !amount) return alert("Name and Amount required");
-
-data.push({name,phone,address,note,amount,type,date});
-save();
-render();
+    products.push({name, costp, salep, stock: stockp, sold: 0});
+    save();
+    refreshView();
 }
 
-function render(){
-let search=document.getElementById("search").value.toLowerCase();
-let dateFilter=document.getElementById("dateFilter").value;
-
-let container=document.getElementById("entries");
-container.innerHTML="";
-let totalDebit=0,totalCredit=0;
-
-data.forEach((item,i)=>{
-if(item.name.toLowerCase().includes(search) &&
-(!dateFilter || item.date==dateFilter)){
-let div=document.createElement("div");
-div.className="card";
-div.innerHTML=`
-<b>${item.name}</b> (${item.date})<br>
-${item.note}<br>
-${item.type=="debit"?"Debit":"Credit"}: ${item.amount}
-`;
-container.appendChild(div);
-
-if(item.type=="debit") totalDebit+=item.amount;
-else totalCredit+=item.amount;
-}
-});
-
-let balance=totalDebit-totalCredit;
-
-document.getElementById("totalDebit").innerText=totalDebit;
-document.getElementById("totalCredit").innerText=totalCredit;
-document.getElementById("balance").innerText=balance;
-
-document.getElementById("balance").className=balance>=0?"red":"green";
+function refreshView(){
+    if(currentView === "table") showTableView();
+    else renderProducts();
+    renderDailyRecords();
+    document.getElementById("currentDay").innerText = currentDay;
 }
 
-function clearData(){
-if(confirm("Clear all data?")){
-data=[];
-save();
-render();
-}
-}
-
-function toggleMode(){
-document.body.classList.toggle("dark");
-}
-
-function printPage(){
-window.print();
-}
-
-async function downloadPDF(){
-const { jsPDF } = window.jspdf;
-let doc=new jsPDF();
-doc.text("GM Khata Report",10,10);
-doc.text("Total Debit: "+document.getElementById("totalDebit").innerText,10,20);
-doc.text("Total Credit: "+document.getElementById("totalCredit").innerText,10,30);
-doc.text("Balance: "+document.getElementById("balance").innerText,10,40);
-doc.save("khata.pdf");
+function renderProducts(){
+    currentView = "card";
+    let list = document.getElementById("productList");
+    list.innerHTML = "";
+    products.forEach((p,index)=>{
+        let div = document.createElement("div");
+        div.className="card";
+        div.innerHTML=`
+            <b>${p.name}</b><br>
+            Cost: ${p.costp} | Sale: ${p.salep}<br>
+            Sold: ${p.sold} | Stock: ${p.stock}<br>
+            <div class="product-buttons">
+                <button onclick="increase(${index})">+</button>
+                <button onclick="decrease(${index})">-</button>
+            </div>`;
+        list.appendChild(div);
+    });
+    updateDashboard();
 }
 
-function screenshot(){
-html2canvas(document.body).then(canvas=>{
-let link=document.createElement("a");
-link.download="screenshot.png";
-link.href=canvas.toDataURL();
-link.click();
-});
+function showTableView(){
+    currentView="table";
+    let list=document.getElementById("productList");
+    list.innerHTML="";
+    if(products.length===0){list.innerHTML="<div class='card'>No Products</div>";return;}
+
+    let table=document.createElement("table");
+    let header=`<tr style="background:#2c3e50;color:white;">
+    <th>Name</th><th>Cost</th><th>Sale</th>
+    <th>Sold</th><th>Stock</th><th>Action</th>
+    </tr>`;
+    let rows="";
+    products.forEach((p,index)=>{
+        rows+=`
+        <tr>
+        <td>${p.name}</td>
+        <td>${p.costp}</td>
+        <td>${p.salep}</td>
+        <td>${p.sold}</td>
+        <td>${p.stock}</td>
+        <td>
+        <button onclick="increase(${index})">+</button>
+        <button onclick="decrease(${index})">-</button>
+        </td>
+        </tr>`;
+    });
+    table.innerHTML=header+rows;
+    list.appendChild(table);
+    updateDashboard();
 }
 
-function calcProfit(){
-let cost=parseFloat(document.getElementById("cost").value);
-let sell=parseFloat(document.getElementById("sell").value);
-let profit=sell-cost;
-document.getElementById("profitResult").innerText="Profit: "+profit;
+function increase(i){
+    let p=products[i];
+    if(p.stock>0 && p.sold>=p.stock){alert("Out of stock!");return;}
+    p.sold+=1;
+
+    let today=new Date().toISOString().split("T")[0];
+
+    sales.push({
+        date: today,
+        sale: p.salep,
+        profit:(p.salep-p.costp),
+        day: currentDay
+    });
+
+    save();
+    refreshView();
 }
 
-function calcInstall(){
-let total=parseFloat(document.getElementById("totalInstall").value);
-let paid=parseFloat(document.getElementById("paidInstall").value);
-let due=total-paid;
-document.getElementById("installResult").innerText="Remaining: "+due;
+function decrease(i){
+    let p=products[i];
+    if(p.sold>0){
+        p.sold-=1;
+        for(let j=sales.length-1;j>=0;j--){
+            if(sales[j].sale===p.salep && sales[j].day===currentDay){
+                sales.splice(j,1); break;
+            }
+        }
+        save();
+        refreshView();
+    }
 }
 
-function sendWhatsApp(){
-let balance=document.getElementById("balance").innerText;
-let msg="Assalamualaikum, aap ka due balance hai: "+balance;
-window.open("https://wa.me/?text="+encodeURIComponent(msg));
+function updateDashboard(){
+    let todaySale=0, overallSale=0, overallProfit=0;
+    sales.forEach(s=>{
+        overallSale += s.sale;
+        overallProfit += s.profit;
+        if(s.day===currentDay) todaySale += s.sale;
+    });
+    document.getElementById("todaySale").innerText=todaySale;
+    document.getElementById("overallSale").innerText=overallSale;
+    let profitEl=document.getElementById("overallProfit");
+    profitEl.innerText=overallProfit;
+    profitEl.className=overallProfit>=0?"green":"red";
 }
 
-render();
+function clearSales(){
+    if(confirm("Clear all sales? Products will remain.")){
+        sales = sales.filter(s=>s.day!==currentDay);
+        products.forEach(p=>p.sold=0);
+        save();
+        refreshView();
+    }
+}
+
+function nextDay(){
+    if(confirm("Start next day? Current day sales will be saved.")){
+        currentDay += 1;
+        products.forEach(p=>p.sold=0);
+        save();
+        refreshView();
+    }
+}
+
+function renderDailyRecords(){
+    let container = document.getElementById("dailyRecords");
+    container.innerHTML="";
+    if(sales.length===0){
+        container.innerHTML="<div class='card'>No sales yet</div>";
+        return;
+    }
+
+    let grouped = {};
+    sales.forEach(s=>{
+        if(!grouped[s.date]) grouped[s.date]=[];
+        grouped[s.date].push(s);
+    });
+
+    for(let date in grouped){
+        let daySales = grouped[date];
+        let total = daySales.reduce((a,b)=>a+b.sale,0);
+
+        let div=document.createElement("div");
+        div.className="card";
+        div.innerHTML=`<b>Date: ${date}</b><br>Total Sale: ${total}<br>`;
+
+        container.appendChild(div);
+    }
+}
+
+function searchByDate(){
+    let searchDate = document.getElementById("searchDate").value;
+    let container = document.getElementById("dailyRecords");
+    container.innerHTML="";
+
+    let filtered = sales.filter(s=>s.date===searchDate);
+
+    if(filtered.length===0){
+        container.innerHTML="<div class='card'>No record found</div>";
+        return;
+    }
+
+    let total = filtered.reduce((a,b)=>a+b.sale,0);
+
+    let div=document.createElement("div");
+    div.className="card";
+    div.innerHTML=`<b>Date: ${searchDate}</b><br>Total Sale: ${total}<br>`;
+
+    container.appendChild(div);
+}
+
+function toggleMode(){document.body.classList.toggle("dark");}
+function sortByName(){products.sort((a,b)=>a.name.localeCompare(b.name)); save(); refreshView();}
+function sortBySale(){products.sort((a,b)=>a.salep-b.salep); save(); refreshView();}
+function takeScreenshot(){html2canvas(document.getElementById("productList"),{scale:3}).then(canvas=>{let link=document.createElement("a");link.download="GM_Product_List.png";link.href=canvas.toDataURL();link.click();});}
+function printPage(){window.print();}
+
+refreshView();
 </script>
 
 </body>
