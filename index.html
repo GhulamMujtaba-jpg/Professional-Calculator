@@ -3,263 +3,348 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Professional Calculator | Precision & Style</title>
+    <title>ProCalc | Advanced Professional Calculator</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            user-select: none; /* Prevent accidental text selection while tapping */
+            user-select: none;
         }
 
         body {
-            background: linear-gradient(145deg, #1e2a3a 0%, #0f1724 100%);
+            background: radial-gradient(circle at 20% 30%, #101820, #0a0f16);
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-family: 'Segoe UI', 'Inter', 'Poppins', system-ui, -apple-system, 'Roboto', sans-serif;
+            font-family: 'Segoe UI', 'Inter', 'Poppins', system-ui, sans-serif;
             padding: 20px;
+        }
+
+        /* Main container with two panels */
+        .calculator-dashboard {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 24px;
+            max-width: 860px;
+            width: 100%;
+            justify-content: center;
+            align-items: flex-start;
         }
 
         /* Main calculator card */
         .calculator {
-            background: rgba(22, 30, 40, 0.85);
-            backdrop-filter: blur(2px);
+            background: rgba(18, 25, 35, 0.95);
+            backdrop-filter: blur(8px);
             border-radius: 48px;
-            box-shadow: 0 25px 45px rgba(0, 0, 0, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.1);
-            padding: 24px 22px 32px 22px;
-            width: 100%;
-            max-width: 480px;
-            transition: all 0.2s ease;
-            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 30px 50px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.08);
+            padding: 24px 22px 32px;
+            flex: 2;
+            min-width: 280px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            transition: transform 0.2s;
         }
 
-        /* Display area */
+        /* History Panel */
+        .history-panel {
+            background: rgba(10, 16, 24, 0.85);
+            backdrop-filter: blur(8px);
+            border-radius: 40px;
+            padding: 20px;
+            flex: 1;
+            min-width: 200px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+            height: fit-content;
+            max-height: 550px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            margin-bottom: 16px;
+        }
+
+        .history-header h3 {
+            color: #cdddee;
+            font-weight: 500;
+            font-size: 1.1rem;
+            letter-spacing: 1px;
+        }
+
+        .clear-history {
+            background: none;
+            border: none;
+            color: #f39c12;
+            font-size: 0.75rem;
+            cursor: pointer;
+            font-weight: 600;
+            padding: 4px 8px;
+            border-radius: 30px;
+            transition: 0.1s;
+        }
+
+        .clear-history:hover {
+            background: rgba(243, 156, 18, 0.2);
+        }
+
+        .history-list {
+            list-style: none;
+            overflow-y: auto;
+            max-height: 400px;
+            padding-right: 6px;
+        }
+
+        .history-list li {
+            color: #b9cfec;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            padding: 8px 6px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            text-align: right;
+            word-break: break-word;
+            transition: 0.05s linear;
+        }
+
+        .history-list li:hover {
+            background: rgba(243, 156, 18, 0.15);
+            border-radius: 14px;
+            cursor: pointer;
+        }
+
+        .memory-bar {
+            margin-top: 16px;
+            display: flex;
+            gap: 12px;
+            justify-content: space-between;
+            background: #0b1119;
+            padding: 10px 14px;
+            border-radius: 60px;
+            margin-bottom: 20px;
+        }
+
+        .mem-btn {
+            background: #1e2a36;
+            border: none;
+            color: #f5e7d9;
+            font-weight: bold;
+            font-size: 0.8rem;
+            padding: 6px 12px;
+            border-radius: 40px;
+            cursor: pointer;
+            transition: 0.1s;
+            font-family: monospace;
+        }
+
+        .mem-btn:active {
+            transform: scale(0.96);
+        }
+
+        /* Display */
         .display {
-            background: #0b0f17;
+            background: #050a10;
             border-radius: 36px;
             padding: 20px 24px;
             margin-bottom: 28px;
-            box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.5), 0 1px 0 rgba(255, 255, 255, 0.05);
+            box-shadow: inset 0 4px 10px rgba(0, 0, 0, 0.6), 0 1px 0 rgba(255, 255, 255, 0.05);
             text-align: right;
-            word-wrap: break-word;
-            word-break: break-word;
         }
 
         .previous-operand {
             min-height: 32px;
-            font-size: 1.1rem;
-            color: #9aa9bb;
-            letter-spacing: 0.5px;
+            font-size: 1rem;
+            color: #7f8fa4;
             font-weight: 400;
-            margin-bottom: 8px;
-            font-family: 'JetBrains Mono', monospace;
+            margin-bottom: 6px;
+            font-family: monospace;
         }
 
         .current-operand {
-            font-size: 3.1rem;
+            font-size: 3rem;
             font-weight: 600;
-            color: #f0f3f8;
+            color: #f0f3fc;
             line-height: 1.2;
             font-family: 'JetBrains Mono', monospace;
-            letter-spacing: 1px;
             overflow-x: auto;
             white-space: pre-wrap;
         }
 
-        /* Button grid */
+        /* Button Grid */
         .buttons {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 14px;
+            gap: 12px;
         }
 
-        /* Universal button style */
         .btn {
-            background: #1e2a32;
+            background: #1f2c36;
             border: none;
             border-radius: 32px;
-            padding: 18px 0;
-            font-size: 1.5rem;
+            padding: 16px 0;
+            font-size: 1.4rem;
             font-weight: 500;
-            font-family: inherit;
             color: #eef4ff;
             cursor: pointer;
-            transition: all 0.15s ease;
-            box-shadow: 0 5px 0 #0f141c;
+            transition: 0.08s linear;
+            box-shadow: 0 4px 0 #0e131c;
             text-align: center;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            backdrop-filter: blur(4px);
         }
 
         .btn:active {
-            transform: translateY(3px);
-            box-shadow: 0 2px 0 #0f141c;
-        }
-
-        /* Special button variants */
-        .btn-function {
-            background: #2c3e4e;
-            color: #bbe1ff;
-            font-weight: 600;
-            font-size: 1.2rem;
+            transform: translateY(2px);
+            box-shadow: 0 1px 0 #0e131c;
         }
 
         .btn-operator {
             background: #f39c12;
             color: #1e2a2f;
-            font-weight: 700;
-            font-size: 1.7rem;
-            box-shadow: 0 5px 0 #b36b0e;
-        }
-
-        .btn-operator:active {
-            transform: translateY(3px);
-            box-shadow: 0 2px 0 #b36b0e;
+            font-weight: 800;
+            font-size: 1.6rem;
+            box-shadow: 0 4px 0 #b36b0e;
         }
 
         .btn-equals {
             background: #2ecc71;
             color: #0a2f1f;
             font-weight: 800;
-            font-size: 1.8rem;
-            box-shadow: 0 5px 0 #1f8f4b;
+            font-size: 1.7rem;
+            box-shadow: 0 4px 0 #1f8f4b;
         }
 
         .btn-clear {
             background: #c0392b;
             color: #ffddda;
-            font-weight: 600;
-            letter-spacing: 1px;
-            box-shadow: 0 5px 0 #7e2a1f;
+            font-weight: 700;
         }
 
         .btn-delete {
-            background: #7f8c8d;
-            color: #fff;
-            font-weight: 600;
-            font-size: 1.3rem;
-            box-shadow: 0 5px 0 #5b6768;
+            background: #5d6e7e;
+            color: white;
         }
 
-        /* zero button span */
+        .btn-mem {
+            background: #2c3e50;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
         .btn-zero {
             grid-column: span 2;
         }
 
-        /* hover effects for desktop */
-        @media (hover: hover) {
-            .btn:hover {
-                filter: brightness(1.08);
-                transform: translateY(-1px);
-                box-shadow: 0 6px 0 #0f141c;
-            }
-            .btn:active {
-                transform: translateY(3px);
-                box-shadow: 0 2px 0 #0f141c;
-            }
-            .btn-operator:hover {
-                background: #fcaa2c;
-            }
-            .btn-equals:hover {
-                background: #3be282;
-            }
-        }
-
-        /* small screen adjustments */
-        @media (max-width: 480px) {
-            .calculator {
-                padding: 18px 16px 24px;
-            }
-            .btn {
-                padding: 14px 0;
-                font-size: 1.3rem;
+        @media (max-width: 680px) {
+            .calculator-dashboard {
+                flex-direction: column;
             }
             .current-operand {
-                font-size: 2.5rem;
+                font-size: 2.2rem;
             }
-            .buttons {
-                gap: 10px;
+            .btn {
+                padding: 12px 0;
+                font-size: 1.2rem;
             }
         }
 
-        /* subtle footer */
         .credit {
             text-align: center;
-            margin-top: 24px;
+            margin-top: 20px;
             font-size: 0.7rem;
-            color: #6a7b8c;
-            font-weight: 400;
+            color: #4a5b6e;
         }
     </style>
 </head>
 <body>
-<div class="calculator">
-    <div class="display">
-        <div class="previous-operand" id="previousDisplay"></div>
-        <div class="current-operand" id="currentDisplay">0</div>
+<div class="calculator-dashboard">
+    <!-- Main Calculator -->
+    <div class="calculator">
+        <div class="memory-bar">
+            <button class="mem-btn" id="memStore">MS</button>
+            <button class="mem-btn" id="memRecall">MR</button>
+            <button class="mem-btn" id="memClear">MC</button>
+            <button class="mem-btn" id="memAdd">M+</button>
+            <button class="mem-btn" id="memSub">M-</button>
+        </div>
+        <div class="display">
+            <div class="previous-operand" id="previousDisplay"></div>
+            <div class="current-operand" id="currentDisplay">0</div>
+        </div>
+        <div class="buttons">
+            <button class="btn btn-clear" data-action="clear">AC</button>
+            <button class="btn btn-delete" data-action="delete">⌫</button>
+            <button class="btn btn-mem" data-action="percent">%</button>
+            <button class="btn btn-operator" data-operator="/">÷</button>
+
+            <button class="btn" data-number="7">7</button>
+            <button class="btn" data-number="8">8</button>
+            <button class="btn" data-number="9">9</button>
+            <button class="btn btn-operator" data-operator="*">×</button>
+
+            <button class="btn" data-number="4">4</button>
+            <button class="btn" data-number="5">5</button>
+            <button class="btn" data-number="6">6</button>
+            <button class="btn btn-operator" data-operator="-">−</button>
+
+            <button class="btn" data-number="1">1</button>
+            <button class="btn" data-number="2">2</button>
+            <button class="btn" data-number="3">3</button>
+            <button class="btn btn-operator" data-operator="+">+</button>
+
+            <button class="btn btn-zero" data-number="0">0</button>
+            <button class="btn" data-number=".">.</button>
+            <button class="btn btn-equals" data-action="equals">=</button>
+        </div>
+        <div class="credit">pro features · memory · history</div>
     </div>
-    <div class="buttons">
-        <!-- Row 1 -->
-        <button class="btn btn-clear" data-action="clear">AC</button>
-        <button class="btn btn-delete" data-action="delete">⌫</button>
-        <button class="btn btn-function" data-operator="%">%</button>
-        <button class="btn btn-operator" data-operator="/">÷</button>
 
-        <!-- Row 2 -->
-        <button class="btn" data-number="7">7</button>
-        <button class="btn" data-number="8">8</button>
-        <button class="btn" data-number="9">9</button>
-        <button class="btn btn-operator" data-operator="*">×</button>
-
-        <!-- Row 3 -->
-        <button class="btn" data-number="4">4</button>
-        <button class="btn" data-number="5">5</button>
-        <button class="btn" data-number="6">6</button>
-        <button class="btn btn-operator" data-operator="-">−</button>
-
-        <!-- Row 4 -->
-        <button class="btn" data-number="1">1</button>
-        <button class="btn" data-number="2">2</button>
-        <button class="btn" data-number="3">3</button>
-        <button class="btn btn-operator" data-operator="+">+</button>
-
-        <!-- Row 5 -->
-        <button class="btn btn-zero" data-number="0">0</button>
-        <button class="btn" data-number=".">.</button>
-        <button class="btn btn-equals" data-action="equals">=</button>
+    <!-- History Panel -->
+    <div class="history-panel">
+        <div class="history-header">
+            <h3>📜 Calculation History</h3>
+            <button class="clear-history" id="clearHistoryBtn">Clear all</button>
+        </div>
+        <ul class="history-list" id="historyList">
+            <li style="opacity:0.6; text-align:center;">— no entries —</li>
+        </ul>
+        <div style="margin-top: 12px; font-size: 11px; color:#4a6b8a; text-align:center;">
+            click any entry to reuse
+        </div>
     </div>
-    <div class="credit">professional calculator · precision mode</div>
 </div>
 
 <script>
-    // ---------- Professional Calculator Core ----------
-    // State variables
-    let currentOperand = '0';      // displayed on screen
-    let previousOperand = '';       // stored operand for operation
-    let operation = null;           // current operation (+, -, *, /, %)
-    let shouldResetScreen = false;   // flag to reset after equals or operator
+    // ---------- PROFESSIONAL ENHANCED CALCULATOR ----------
+    // core state
+    let currentOperand = '0';
+    let previousOperand = '';
+    let operation = null;
+    let shouldResetScreen = false;
+
+    // memory variable
+    let memoryValue = 0;
+
+    // history array (stores { expression, result })
+    let historyEntries = [];
 
     // DOM elements
     const previousDisplayElem = document.getElementById('previousDisplay');
     const currentDisplayElem = document.getElementById('currentDisplay');
+    const historyListElem = document.getElementById('historyList');
 
-    // Helper: update the UI
+    // Helper: update display & re-render history
     function updateDisplay() {
-        // format current operand: limit length but keep precision for large numbers
         let displayCurrent = currentOperand;
         if (displayCurrent === '') displayCurrent = '0';
-        // handle decimal trailing nicely: avoid scientific notation if too long? but keep user friendly
-        if (displayCurrent.length > 18 && !displayCurrent.includes('e')) {
-            // optional: trim visually but not breaking logic
+        if (displayCurrent.length > 20 && !displayCurrent.includes('e')) {
             displayCurrent = parseFloat(displayCurrent).toPrecision(12);
         }
         currentDisplayElem.innerText = displayCurrent;
 
-        // show previous operand and operator
         if (operation !== null && previousOperand !== '') {
             let opSymbol = '';
             switch (operation) {
@@ -267,7 +352,6 @@
                 case '-': opSymbol = '−'; break;
                 case '*': opSymbol = '×'; break;
                 case '/': opSymbol = '÷'; break;
-                case '%': opSymbol = '%'; break;
                 default: opSymbol = operation;
             }
             previousDisplayElem.innerText = `${previousOperand} ${opSymbol}`;
@@ -276,39 +360,114 @@
         }
     }
 
-    // input number or decimal point
-    function appendNumber(number) {
-        if (shouldResetScreen) {
-            resetCurrentOperand();
-            shouldResetScreen = false;
+    // Render history UI
+    function renderHistory() {
+        if (!historyListElem) return;
+        if (historyEntries.length === 0) {
+            historyListElem.innerHTML = '<li style="opacity:0.6; text-align:center;">— no entries —</li>';
+            return;
         }
-        // handle decimal point edge cases
-        if (number === '.') {
-            if (currentOperand.includes('.')) return; // already has decimal
-            if (currentOperand === '' || currentOperand === '0') {
-                currentOperand = '0.';
+        const fragment = document.createDocumentFragment();
+        // show latest first (reversed)
+        [...historyEntries].reverse().forEach(entry => {
+            const li = document.createElement('li');
+            li.textContent = `${entry.expression} = ${entry.result}`;
+            li.setAttribute('data-expr', entry.expression);
+            li.setAttribute('data-result', entry.result);
+            li.addEventListener('click', (e) => {
+                e.stopPropagation();
+                // reuse result as current operand
+                currentOperand = entry.result.toString();
+                previousOperand = '';
+                operation = null;
+                shouldResetScreen = true;
                 updateDisplay();
-                return;
-            }
-        }
-        // avoid too many digits (safety limit)
-        if (currentOperand.replace(/\./g, '').length >= 16 && number !== '.') return;
-
-        // replace initial zero unless it's "0." for decimal
-        if (currentOperand === '0' && number !== '.') {
-            currentOperand = number;
-        } else {
-            currentOperand += number;
-        }
-        updateDisplay();
+            });
+            fragment.appendChild(li);
+        });
+        historyListElem.innerHTML = '';
+        historyListElem.appendChild(fragment);
     }
 
-    // reset the current operand to fresh state
-    function resetCurrentOperand() {
+    // Add to history (expression + final result)
+    function addToHistory(expression, result) {
+        if (!expression || result === undefined || result === null) return;
+        const formattedResult = parseFloat(result).toString();
+        // avoid duplicate identical consecutive? but it's fine
+        historyEntries.unshift({ expression: expression.trim(), result: formattedResult });
+        // limit history to 30 entries
+        if (historyEntries.length > 30) historyEntries.pop();
+        renderHistory();
+    }
+
+    // clear all history
+    function clearHistory() {
+        historyEntries = [];
+        renderHistory();
+    }
+
+    // Helper: format expression string for history
+    function buildExpression(prev, op, curr) {
+        let opSym = '';
+        if (op === '+') opSym = '+';
+        else if (op === '-') opSym = '-';
+        else if (op === '*') opSym = '×';
+        else if (op === '/') opSym = '÷';
+        else opSym = op;
+        return `${prev} ${opSym} ${curr}`;
+    }
+
+    // Core compute (returns result or null)
+    function compute(prevVal, currVal, op) {
+        let result = null;
+        switch (op) {
+            case '+': result = prevVal + currVal; break;
+            case '-': result = prevVal - currVal; break;
+            case '*': result = prevVal * currVal; break;
+            case '/': 
+                if (currVal === 0) return null;
+                result = prevVal / currVal; 
+                break;
+            default: return null;
+        }
+        // handle floating precision
+        if (Math.abs(result) < 1e-12 && result !== 0) result = 0;
+        return parseFloat(result.toFixed(12));
+    }
+
+    // Evaluate pending operation and update history
+    function evaluateAndRecord() {
+        if (operation === null || previousOperand === '' || currentOperand === '') return false;
+        const prevNum = parseFloat(previousOperand);
+        const currNum = parseFloat(currentOperand);
+        if (isNaN(prevNum) || isNaN(currNum)) return false;
+
+        const resultValue = compute(prevNum, currNum, operation);
+        if (resultValue === null) {
+            alert("Math Error: Division by zero");
+            clearAll();
+            return false;
+        }
+
+        // build expression string for history
+        const expr = buildExpression(previousOperand, operation, currentOperand);
+        const finalResult = resultValue.toString();
+        // update current operand with result
+        currentOperand = finalResult;
+        previousOperand = '';
+        operation = null;
+        shouldResetScreen = true;
+        updateDisplay();
+        // add to history
+        addToHistory(expr, finalResult);
+        return true;
+    }
+
+    // reset current operand
+    function resetCurrent() {
         currentOperand = '0';
     }
 
-    // clear everything (AC)
     function clearAll() {
         currentOperand = '0';
         previousOperand = '';
@@ -317,10 +476,9 @@
         updateDisplay();
     }
 
-    // delete last character (backspace)
     function deleteLast() {
         if (shouldResetScreen) {
-            resetCurrentOperand();
+            resetCurrent();
             shouldResetScreen = false;
             updateDisplay();
             return;
@@ -334,137 +492,79 @@
         updateDisplay();
     }
 
-    // perform arithmetic based on chosen operator
-    function computeResult() {
-        if (operation === null || previousOperand === '' || currentOperand === '') return false;
-        let prev = parseFloat(previousOperand);
-        let current = parseFloat(currentOperand);
-        if (isNaN(prev) || isNaN(current)) return false;
-
-        let result = null;
-        switch (operation) {
-            case '+':
-                result = prev + current;
-                break;
-            case '-':
-                result = prev - current;
-                break;
-            case '*':
-                result = prev * current;
-                break;
-            case '/':
-                if (current === 0) {
-                    alert("Math Error: Division by zero");
-                    clearAll();
-                    return false;
-                }
-                result = prev / current;
-                break;
-            case '%':
-                result = prev % current;
-                break;
-            default:
-                return false;
+    function appendNumber(number) {
+        if (shouldResetScreen) {
+            resetCurrent();
+            shouldResetScreen = false;
         }
-
-        // handle rounding for floating point artifacts
-        if (result !== null) {
-            // limit to 12 decimal places for cleanliness but preserve scientific if needed
-            if (Math.abs(result) < 1e-12 && result !== 0) result = 0;
-            // avoid very long decimals: use parseFloat to round nicely
-            let roundedResult = parseFloat(result.toFixed(12));
-            currentOperand = roundedResult.toString();
-            // remove trailing .0 if integer
-            if (currentOperand.includes('.') && currentOperand.endsWith('.0')) {
-                currentOperand = currentOperand.slice(0, -2);
-            }
-            previousOperand = '';
-            operation = null;
-            shouldResetScreen = true; // next input will overwrite
-            updateDisplay();
-            return true;
-        }
-        return false;
-    }
-
-    // choose operator (+, -, *, /, %)
-    function setOperator(op) {
-        // If we have a pending operation & we are not in reset state, compute previous first
-        if (operation !== null && !shouldResetScreen && previousOperand !== '') {
-            // evaluate before setting new operator
-            const success = computeResult();
-            if (success) {
-                // after compute, currentOperand is result, and we want to set new operation
-                // but computeResult sets shouldResetScreen = true, so we need to preserve currentOperand as previous
-                previousOperand = currentOperand;
-                operation = op;
-                shouldResetScreen = true;  // next number entry will start fresh
+        if (number === '.') {
+            if (currentOperand.includes('.')) return;
+            if (currentOperand === '' || currentOperand === '0') {
+                currentOperand = '0.';
                 updateDisplay();
                 return;
             }
         }
-
-        // If we have current operand valid
-        if (currentOperand === '' || currentOperand === '0' && op === '%') {
-            // edge for % with zero: allow but use 0 as base
+        if (currentOperand.replace(/\./g, '').length >= 16 && number !== '.') return;
+        if (currentOperand === '0' && number !== '.') {
+            currentOperand = number;
+        } else {
+            currentOperand += number;
         }
-        if (previousOperand !== '' && operation !== null && shouldResetScreen) {
-            // after equals, we directly replace operation without computing
+        updateDisplay();
+    }
+
+    function setOperator(op) {
+        if (operation !== null && !shouldResetScreen && previousOperand !== '') {
+            // compute previous before new operator
+            const prevNum = parseFloat(previousOperand);
+            const currNum = parseFloat(currentOperand);
+            if (!isNaN(prevNum) && !isNaN(currNum)) {
+                const interim = compute(prevNum, currNum, operation);
+                if (interim !== null) {
+                    previousOperand = interim.toString();
+                    currentOperand = previousOperand;
+                    operation = op;
+                    shouldResetScreen = true;
+                    updateDisplay();
+                    return;
+                }
+            }
+        }
+        if (currentOperand !== '' && currentOperand !== '0') {
             previousOperand = currentOperand;
             operation = op;
             shouldResetScreen = true;
             updateDisplay();
-            return;
-        }
-
-        // Normal flow: store current operand as previous
-        if (currentOperand !== '') {
-            previousOperand = currentOperand;
+        } else if (previousOperand !== '' && operation) {
             operation = op;
-            shouldResetScreen = true;
             updateDisplay();
         }
     }
 
-    // equals action: evaluate pending operation
-    function evaluate() {
+    function handleEquals() {
         if (operation === null || previousOperand === '') {
-            // if no pending operation but just show current
             shouldResetScreen = true;
             updateDisplay();
             return;
         }
-        computeResult();
-        // after computeResult, operation is cleared and shouldResetScreen set to true
+        evaluateAndRecord();
     }
 
-    // handle percentage special as quick operator: percent of current value
-    // For professional style, we implement as standard modulo when used as operator,
-    // but also percent quick conversion (x% => x/100) if pressed standalone? 
-    // According to professional calculators: % key on an operand converts to percent.
-    // But to keep consistent, we treat % as binary operator (modulo) when used between two numbers.
-    // Additional shortcut: if no previous operand and % pressed, compute percentage of current (x% = x/100)
-    // However many professional designs treat % as unary percent. Let's implement unary percent on current operand.
-    // BUT my previous setOperator uses it as binary modulo. For better professional experience:
-    // If pressed with no pending operation, it converts current operand to percent (value / 100)
-    // If pressed after an operator and a number, it works as modulo.
-    // I'll refine: in button handler, if data-operator="%" we either apply unary percent if no pending operation OR treat as modulo if pending.
-    // New enhanced percent logic:
+    // advanced percent: unary percent or binary modulo
     function handlePercent() {
         if (shouldResetScreen) {
-            resetCurrentOperand();
+            resetCurrent();
             shouldResetScreen = false;
         }
+        // if there's pending operation, treat as modulo (binary)
         if (operation !== null && previousOperand !== '') {
-            // if there is pending operation, treat as binary modulo operator
             setOperator('%');
         } else {
-            // unary percent: convert current operand to percentage (value / 100)
             let val = parseFloat(currentOperand);
             if (isNaN(val)) val = 0;
             let percentVal = val / 100;
             currentOperand = percentVal.toString();
-            // Remove trailing zeros for neatness
             if (currentOperand.includes('.') && currentOperand.split('.')[1]?.length > 10) {
                 currentOperand = parseFloat(currentOperand).toString();
             }
@@ -473,98 +573,139 @@
         }
     }
 
-    // Keyboard support (pro touch)
+    // ------ MEMORY FUNCTIONS ------
+    function memStore() {
+        let val = parseFloat(currentOperand);
+        if (isNaN(val)) val = 0;
+        memoryValue = val;
+        showMemoryToast("Memory stored: " + memoryValue);
+    }
+    function memRecall() {
+        currentOperand = memoryValue.toString();
+        shouldResetScreen = true;
+        operation = null;
+        previousOperand = '';
+        updateDisplay();
+        showMemoryToast("Recalled: " + memoryValue);
+    }
+    function memClear() {
+        memoryValue = 0;
+        showMemoryToast("Memory cleared");
+    }
+    function memAdd() {
+        let curr = parseFloat(currentOperand);
+        if (isNaN(curr)) curr = 0;
+        memoryValue += curr;
+        showMemoryToast("M+ Added: " + curr + " → Mem = " + memoryValue);
+    }
+    function memSubtract() {
+        let curr = parseFloat(currentOperand);
+        if (isNaN(curr)) curr = 0;
+        memoryValue -= curr;
+        showMemoryToast("M- Subtracted: " + curr + " → Mem = " + memoryValue);
+    }
+
+    // small toast-like notif (non-intrusive)
+    let toastTimeout = null;
+    function showMemoryToast(msg) {
+        let toast = document.getElementById('memToastMsg');
+        if (!toast) {
+            const div = document.createElement('div');
+            div.id = 'memToastMsg';
+            div.style.position = 'fixed';
+            div.style.bottom = '20px';
+            div.style.left = '50%';
+            div.style.transform = 'translateX(-50%)';
+            div.style.backgroundColor = '#2c3e50';
+            div.style.color = '#f1c40f';
+            div.style.padding = '8px 18px';
+            div.style.borderRadius = '50px';
+            div.style.fontSize = '0.8rem';
+            div.style.fontFamily = 'monospace';
+            div.style.zIndex = '999';
+            div.style.backdropFilter = 'blur(12px)';
+            div.style.boxShadow = '0 4px 12px black';
+            div.style.pointerEvents = 'none';
+            document.body.appendChild(div);
+            toast = div;
+        }
+        toast.textContent = `⚡ ${msg}`;
+        toast.style.opacity = '1';
+        if (toastTimeout) clearTimeout(toastTimeout);
+        toastTimeout = setTimeout(() => {
+            toast.style.opacity = '0';
+        }, 1300);
+    }
+
+    // Keyboard mapping with extended support
     function handleKeyboard(e) {
         const key = e.key;
-        // numbers 0-9
         if (/[0-9]/.test(key)) {
             e.preventDefault();
             appendNumber(key);
-        }
-        // decimal point
-        else if (key === '.') {
+        } else if (key === '.') {
             e.preventDefault();
             appendNumber('.');
-        }
-        // operators
-        else if (key === '+' || key === '-') {
+        } else if (key === '+' || key === '-') {
             e.preventDefault();
             setOperator(key);
-        }
-        else if (key === '*') {
+        } else if (key === '*') {
             e.preventDefault();
             setOperator('*');
-        }
-        else if (key === '/') {
+        } else if (key === '/') {
             e.preventDefault();
             setOperator('/');
-        }
-        else if (key === '%') {
+        } else if (key === '%') {
             e.preventDefault();
-            handlePercent();   // use enhanced percent logic
-        }
-        // Enter or = for equals
-        else if (key === 'Enter' || key === '=') {
+            handlePercent();
+        } else if (key === 'Enter' || key === '=') {
             e.preventDefault();
-            evaluate();
-        }
-        // Backspace for delete
-        else if (key === 'Backspace') {
+            handleEquals();
+        } else if (key === 'Backspace') {
             e.preventDefault();
             deleteLast();
-        }
-        // Escape or Delete for clear all
-        else if (key === 'Escape' || key === 'Delete') {
+        } else if (key === 'Escape') {
             e.preventDefault();
             clearAll();
+        } else if (key === 'm' || key === 'M') {
+            e.preventDefault();
+            memStore();
+        } else if (key === 'r' || key === 'R') {
+            e.preventDefault();
+            memRecall();
         }
     }
 
-    // -------- Event listeners for buttons (dynamic) --------
-    function attachEvents() {
-        // number buttons
+    // Event binding for memory & history
+    function bindEvents() {
         document.querySelectorAll('[data-number]').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const number = btn.getAttribute('data-number');
-                appendNumber(number);
-            });
+            btn.addEventListener('click', () => appendNumber(btn.getAttribute('data-number')));
         });
-
-        // operator buttons (except % and equals and clear/del)
         document.querySelectorAll('[data-operator]').forEach(btn => {
-            const operator = btn.getAttribute('data-operator');
-            if (operator === '%') {
-                btn.addEventListener('click', (e) => {
-                    handlePercent();
-                });
-            } else {
-                btn.addEventListener('click', (e) => {
-                    setOperator(operator);
-                });
-            }
+            const op = btn.getAttribute('data-operator');
+            btn.addEventListener('click', () => setOperator(op));
         });
+        document.querySelector('[data-action="clear"]')?.addEventListener('click', () => clearAll());
+        document.querySelector('[data-action="delete"]')?.addEventListener('click', () => deleteLast());
+        document.querySelector('[data-action="equals"]')?.addEventListener('click', () => handleEquals());
+        document.querySelector('[data-action="percent"]')?.addEventListener('click', () => handlePercent());
 
-        // clear button
-        const clearBtn = document.querySelector('[data-action="clear"]');
-        if (clearBtn) clearBtn.addEventListener('click', () => clearAll());
-
-        // delete button
-        const deleteBtn = document.querySelector('[data-action="delete"]');
-        if (deleteBtn) deleteBtn.addEventListener('click', () => deleteLast());
-
-        // equals button
-        const equalsBtn = document.querySelector('[data-action="equals"]');
-        if (equalsBtn) equalsBtn.addEventListener('click', () => evaluate());
+        document.getElementById('memStore')?.addEventListener('click', memStore);
+        document.getElementById('memRecall')?.addEventListener('click', memRecall);
+        document.getElementById('memClear')?.addEventListener('click', memClear);
+        document.getElementById('memAdd')?.addEventListener('click', memAdd);
+        document.getElementById('memSub')?.addEventListener('click', memSubtract);
+        document.getElementById('clearHistoryBtn')?.addEventListener('click', clearHistory);
     }
 
-    // Initialize and attach global keyboard handler
     function init() {
-        attachEvents();
+        bindEvents();
         window.addEventListener('keydown', handleKeyboard);
         updateDisplay();
+        renderHistory();
+        memoryValue = 0;
     }
 
-    // start the app
     init();
 </script>
 </body>
